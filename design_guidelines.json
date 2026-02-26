@@ -1,0 +1,169 @@
+{
+  "design_system": {
+    "identity": {
+      "name": "Spartans CMMS",
+      "persona": "The Tactical Industrialist",
+      "vibe": "Robust, Efficient, Disciplined, High-Contrast",
+      "theme_mode": "light",
+      "logo_url": "https://customer-assets.emergentagent.com/job_facility-manager-19/artifacts/dxiig5gm_SFM%20logo.jpg"
+    },
+    "typography": {
+      "font_family": {
+        "headings": "Barlow Condensed, sans-serif",
+        "body": "Public Sans, sans-serif",
+        "mono": "JetBrains Mono, monospace"
+      },
+      "weights": {
+        "headings": "700",
+        "body": "400",
+        "bold": "600"
+      },
+      "scale": {
+        "h1": "text-4xl md:text-5xl tracking-tight uppercase",
+        "h2": "text-3xl tracking-tight uppercase",
+        "h3": "text-xl md:text-2xl font-semibold",
+        "body": "text-base leading-relaxed",
+        "small": "text-sm text-muted-foreground",
+        "mono": "text-xs font-mono tracking-wide"
+      },
+      "imports": [
+        "@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');"
+      ]
+    },
+    "colors": {
+      "palette": {
+        "primary": {
+          "DEFAULT": "#001F3F",
+          "foreground": "#FFFFFF",
+          "hover": "#003366"
+        },
+        "secondary": {
+          "DEFAULT": "#D32F2F",
+          "foreground": "#FFFFFF",
+          "hover": "#B71C1C"
+        },
+        "accent": {
+          "DEFAULT": "#FFC107",
+          "foreground": "#000000"
+        },
+        "background": "#F8F9FA",
+        "surface": "#FFFFFF",
+        "sidebar": "#0B1120",
+        "border": "#E2E8F0",
+        "success": "#2E7D32",
+        "warning": "#ED6C02",
+        "error": "#D32F2F"
+      },
+      "usage": {
+        "sidebar_bg": "bg-[#0B1120]",
+        "sidebar_text": "text-gray-300",
+        "sidebar_active": "bg-[#D32F2F] text-white",
+        "card_bg": "bg-white",
+        "page_bg": "bg-[#F8F9FA]"
+      }
+    },
+    "layout": {
+      "spacing": {
+        "container_padding": "p-6 md:p-8",
+        "section_gap": "gap-6 md:gap-8",
+        "component_gap": "gap-4"
+      },
+      "grid": {
+        "dashboard": "grid grid-cols-1 md:grid-cols-12 gap-6",
+        "card_list": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      },
+      "border_radius": {
+        "default": "rounded-sm",
+        "button": "rounded-md",
+        "card": "rounded-sm"
+      }
+    },
+    "visual_enhancers": {
+      "shadows": {
+        "card": "shadow-[0_1px_3px_rgba(0,0,0,0.12),0_1px_2px_rgba(0,0,0,0.24)]",
+        "hover": "shadow-[0_3px_6px_rgba(0,0,0,0.16),0_3px_6px_rgba(0,0,0,0.23)]"
+      },
+      "borders": {
+        "default": "border border-gray-200",
+        "status_indicator": "border-l-4"
+      },
+      "textures": {
+        "grid_bg": "bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"
+      }
+    },
+    "components": {
+      "buttons": {
+        "primary": "bg-[#001F3F] hover:bg-[#003366] text-white font-semibold uppercase tracking-wide rounded-md shadow-sm transition-all active:scale-95",
+        "secondary": "bg-white border-2 border-[#001F3F] text-[#001F3F] hover:bg-gray-50 font-semibold uppercase tracking-wide rounded-md transition-all",
+        "destructive": "bg-[#D32F2F] hover:bg-[#B71C1C] text-white font-semibold uppercase tracking-wide rounded-md shadow-sm"
+      },
+      "cards": {
+        "base": "bg-white border border-gray-200 rounded-sm shadow-sm p-6 relative overflow-hidden group hover:border-[#001F3F]/30 transition-colors",
+        "metric": "flex flex-col justify-between h-full"
+      },
+      "inputs": {
+        "base": "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#001F3F] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      },
+      "status_badges": {
+        "base": "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+        "variants": {
+          "active": "bg-green-100 text-green-800",
+          "pending": "bg-yellow-100 text-yellow-800",
+          "critical": "bg-red-100 text-red-800",
+          "maintenance": "bg-blue-100 text-blue-800"
+        }
+      }
+    },
+    "assets": {
+      "images": {
+        "login_bg": "https://images.unsplash.com/photo-1721937127582-ed331de95a04?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzh8MHwxfHNlYXJjaHwzfHx3YXJlaG91c2UlMjBpbnZlbnRvcnklMjBzaGVsdmVzfGVufDB8fHx8MTc2ODU4MTgyMnww&ixlib=rb-4.1.0&q=85",
+        "technician_hero": "https://images.unsplash.com/photo-1741418566305-8568a8a6f221?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxNzV8MHwxfHNlYXJjaHwyfHxtYWludGVuYW5jZSUyMHRlY2huaWNpYW4lMjB3b3JrZXJ8ZW58MHx8fHwxNzY4NTgxODIwfDA&ixlib=rb-4.1.0&q=85",
+        "inventory_hero": "https://images.unsplash.com/photo-1740914994657-f1cdffdc418e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzh8MHwxfHNlYXJjaHwxfHx3YXJlaG91c2UlMjBpbnZlbnRvcnklMjBzaGVsdmVzfGVufDB8fHx8MTc2ODU4MTgyMnww&ixlib=rb-4.1.0&q=85"
+      },
+      "icons": {
+        "library": "lucide-react",
+        "style": "stroke-width: 1.5px; size: 20px"
+      }
+    }
+  },
+  "instructions_to_main_agent": {
+    "general": [
+      "Implement the 'Tactical Industrial' theme. This means sharp lines, high contrast, and a focus on data density.",
+      "Use the 'Bento Grid' layout for the main dashboard. Avoid equal-sized cards; mix spans to create visual interest.",
+      "The Sidebar should be DARK (#0B1120) to contrast with the LIGHT (#F8F9FA) main content area.",
+      "Use 'Barlow Condensed' for all Headings (h1-h3) to give it that strong, vertical industrial look.",
+      "Use 'JetBrains Mono' for any ID numbers, Order #s, or Status Codes.",
+      "Ensure all interactive elements have `data-testid` attributes."
+    ],
+    "pages": {
+      "login": {
+        "layout": "Split screen. Left side: Login form (White bg). Right side: Full height image (Warehouse/Industrial) with a Navy Blue overlay (opacity 80%).",
+        "elements": "Logo prominent at top of form. 'Sign In to Portal' heading in Barlow Condensed."
+      },
+      "dashboard": {
+        "layout": "Sidebar navigation (fixed left). Top header (white, sticky). Main content (gray bg, bento grid).",
+        "widgets": [
+          "KPI Cards (Total Work Orders, Active Alerts, etc.) - Top row.",
+          "Recent Activity Feed (Vertical list) - Right column.",
+          "Maintenance Calendar (Mini view) - Middle.",
+          "Quick Actions (Create WO, Add Asset) - Bottom or Sidebar."
+        ]
+      },
+      "work_orders": {
+        "layout": "Table view with advanced filters. Use Shadcn Table.",
+        "details": "Slide-over panel or separate page with 'Technical Spec Sheet' styling (borders, mono fonts for data)."
+      }
+    },
+    "components": {
+      "charts": "Use Recharts. Style them minimal. No grid lines inside charts if possible, or very subtle. Colors: Navy for primary data, Red for alerts.",
+      "tables": "Dense rows. 'border-b' only. Header row uppercase and bold (Barlow Condensed)."
+    }
+  },
+  "universal_guidelines": [
+    "Do not use generic centered layouts.",
+    "Create depth through layered design elements.",
+    "Use 2-3x more spacing than feels comfortable inside containers, but keep the grid gaps tight (gap-4 or gap-6) for density.",
+    "Every interaction needs micro-animations.",
+    "NEVER use AI assistant Emoji characters."
+  ]
+}
