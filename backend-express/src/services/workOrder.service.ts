@@ -1,38 +1,37 @@
 import { prisma } from '../app';
+import { WorkOrderRepository } from '../repositories/workOrder.repository';
+import { UserRepository } from '../repositories/user.repository';
+import { NotificationRepository } from '../repositories/notification.repository';
 
 export class WorkOrderService {
     static async createWorkOrder(data: any, creatorId: string) {
         const { title, description, priority, assetId, location, dueDate, notes } = data;
 
         const [workOrder, admins] = await prisma.$transaction(async (tx: any) => {
-            const wo = await tx.workOrder.create({
-                data: {
-                    title,
-                    description,
-                    priority: priority || 'medium',
-                    location,
-                    dueDate: dueDate ? new Date(dueDate) : null,
-                    notes,
-                    creatorId,
-                    assetId
-                }
-            });
+            const wo = await WorkOrderRepository.create({
+                title,
+                description,
+                priority: priority || 'medium',
+                location,
+                dueDate: dueDate ? new Date(dueDate) : null,
+                notes,
+                creatorId,
+                assetId
+            }, tx);
 
-            const adminsAndTechs = await tx.user.findMany({
-                where: { role: { in: ['admin', 'technician'] }, id: { not: creatorId } },
-                select: { id: true }
-            });
+            const adminsAndTechs = await UserRepository.findAdminsAndTechsExcept(creatorId, tx);
 
             if (adminsAndTechs.length > 0) {
-                await tx.notification.createMany({
-                    data: adminsAndTechs.map((admin: any) => ({
+                await NotificationRepository.createMany(
+                    adminsAndTechs.map((admin: any) => ({
                         userId: admin.id,
                         type: 'work_order',
                         title: 'New Work Order',
                         message: `Work order '${wo.title}' has been created`,
                         referenceId: wo.id
-                    }))
-                });
+                    })),
+                    tx
+                );
             }
 
             return [wo, adminsAndTechs];
@@ -55,57 +54,33 @@ export class WorkOrderService {
         if (status) where.status = String(status);
         if (priority) where.priority = String(priority);
 
-        const workOrders = await prisma.workOrder.findMany({
-            where,
-            skip: parseInt(String(skip)),
-            take: parseInt(String(limit)),
-            orderBy: { createdAt: 'desc' },
-            include: {
-                creator: { select: { name: true } },
-                assignee: { select: { name: true } },
-                asset: { select: { name: true } }
-            }
-        });
-
-        return workOrders;
+        return WorkOrderRepository.findMany(where, parseInt(String(skip)), parseInt(String(limit)));
     }
 
     static async getWorkOrderById(id: string) {
-        const workOrder = await prisma.workOrder.findUnique({
-            where: { id },
-            include: {
-                creator: { select: { name: true } },
-                assignee: { select: { name: true } },
-                asset: { select: { name: true } }
-            }
-        });
-
+        const workOrder = await WorkOrderRepository.findById(id);
         if (!workOrder) throw new Error('Work order not found');
-
         return workOrder;
     }
 
     static async updateWorkOrder(id: string, data: any) {
         const { title, description, priority, status, assignedTo, location, dueDate, notes } = data;
 
-        const existingWo = await prisma.workOrder.findUnique({ where: { id } });
+        const existingWo = await WorkOrderRepository.findById(id);
         if (!existingWo) throw new Error('Work order not found');
 
         const [updatedWo] = await prisma.$transaction(async (tx: any) => {
-            const wo = await tx.workOrder.update({
-                where: { id },
-                data: {
-                    title,
-                    description,
-                    priority,
-                    status,
-                    assigneeId: assignedTo,
-                    location,
-                    dueDate: dueDate ? new Date(dueDate) : undefined,
-                    notes,
-                    ...(status === 'completed' && { completedAt: new Date() })
-                }
-            });
+            const wo = await WorkOrderRepository.update(id, {
+                title,
+                description,
+                priority,
+                status,
+                assigneeId: assignedTo,
+                location,
+                dueDate: dueDate ? new Date(dueDate) : undefined,
+                notes,
+                ...(status === 'completed' && { completedAt: new Date() })
+            }, tx);
 
             const notifications = [];
             if (assignedTo && assignedTo !== existingWo.assigneeId) {
@@ -129,7 +104,7 @@ export class WorkOrderService {
             }
 
             if (notifications.length > 0) {
-                await tx.notification.createMany({ data: notifications });
+                await NotificationRepository.createMany(notifications, tx);
             }
 
             return [wo];

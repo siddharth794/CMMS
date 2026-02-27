@@ -1,24 +1,23 @@
 import { prisma } from '../app';
+import { InventoryRepository } from '../repositories/inventory.repository';
+import { UserRepository } from '../repositories/user.repository';
+import { NotificationRepository } from '../repositories/notification.repository';
 
 export class InventoryService {
     static async createInventoryItem(data: any) {
         const { name, description, category, sku, quantity, minQuantity, unit, location, unitCost } = data;
 
-        const item = await prisma.inventoryItem.create({
-            data: {
-                name,
-                description,
-                category,
-                sku,
-                quantity: quantity || 0,
-                minQuantity: minQuantity || 0,
-                unit: unit || 'pcs',
-                location,
-                unitCost: unitCost || 0.0
-            }
+        return InventoryRepository.create({
+            name,
+            description,
+            category,
+            sku,
+            quantity: quantity || 0,
+            minQuantity: minQuantity || 0,
+            unit: unit || 'pcs',
+            location,
+            unitCost: unitCost || 0.0
         });
-
-        return item;
     }
 
     static async getInventoryItems(query: any) {
@@ -27,55 +26,43 @@ export class InventoryService {
         const where: any = {};
         if (category) where.category = String(category);
 
-        const items = await prisma.inventoryItem.findMany({
-            where,
-            skip: parseInt(String(skip)),
-            take: parseInt(String(limit)),
-            orderBy: { createdAt: 'desc' }
-        });
-
-        return items;
+        return InventoryRepository.findMany(where, parseInt(String(skip)), parseInt(String(limit)));
     }
 
     static async updateInventoryItem(id: string, data: any) {
         const { name, description, category, quantity, minQuantity, unit, location, unitCost } = data;
 
-        const existingItem = await prisma.inventoryItem.findUnique({ where: { id } });
+        const existingItem = await InventoryRepository.findById(id);
         if (!existingItem) {
             throw new Error('Inventory item not found');
         }
 
         const [updatedItem] = await prisma.$transaction(async (tx: any) => {
-            const item = await tx.inventoryItem.update({
-                where: { id },
-                data: {
-                    name,
-                    description,
-                    category,
-                    quantity,
-                    minQuantity,
-                    unit,
-                    location,
-                    unitCost
-                }
-            });
+            const item = await InventoryRepository.update(id, {
+                name,
+                description,
+                category,
+                quantity,
+                minQuantity,
+                unit,
+                location,
+                unitCost
+            }, tx);
 
             if (item.quantity <= item.minQuantity) {
-                const admins = await tx.user.findMany({
-                    where: { role: 'admin' },
-                    select: { id: true }
-                });
+                const admins = await UserRepository.findAdmins(tx);
 
                 if (admins.length > 0) {
-                    await tx.notification.createMany({
-                        data: admins.map((admin: any) => ({
+                    await NotificationRepository.createMany(
+                        admins.map((admin: any) => ({
                             userId: admin.id,
                             type: 'inventory',
                             title: 'Low Stock Alert',
                             message: `Item '${item.name}' is running low (${item.quantity} remaining)`,
                             referenceId: item.id
-                        }))
-                    });
+                        })),
+                        tx
+                    );
                 }
             }
 
