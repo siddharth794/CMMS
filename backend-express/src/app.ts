@@ -11,18 +11,12 @@ app.use(cors());
 app.use(express.json());
 
 import apiRoutes from './routes';
-
+import { errorHandler } from './middlewares/error.middleware';
 // Routes will be added here
 app.use('/api', apiRoutes);
 
 // Global Error Handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error(err.stack);
-    res.status(err.status || 500).json({
-        message: err.message || 'Internal Server Error',
-        ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
-    });
-});
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 
