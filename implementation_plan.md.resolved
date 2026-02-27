@@ -1,0 +1,78 @@
+# Express.js & Prisma Migration Implementation Plan
+
+This plan details the complete migration path for the CMMS application from FastAPI/MongoDB to Node.js/Express with Prisma (PostgreSQL). By enforcing structured, relational data integrity, this addresses the critical risks highlighted in the security audit.
+
+## User Review Required
+> [!IMPORTANT]
+> Because Prisma strongly types Postgres schema relationships, the NoSQL "flexible" data constraints (like missing assigned_to values) will be strictly enforced as explicit relationships or nullable columns.
+> Are you ready to provision a local or cloud PostgreSQL instance (e.g., Supabase/Neon) for testing this migration?
+
+## Proposed Changes
+
+---
+### 1. Database & ORM Layer
+The MongoDB layer will be entirely replaced by PostgreSQL + Prisma.
+
+#### [NEW] `backend-express/prisma/schema.prisma`
+- Initialize the ORM configuration
+- Map all 6 core entities: 
+- Configure `model` declarations with strict foreign key constraints (e.g., `creatorId`, `assetId`).
+
+---
+### 2. Express Server Setup
+Replace the single server
+
+#### [NEW] `backend-express/src/app.ts`
+- Initialize Express, CORS, and JSON body parsing middleware.
+- Configure global error handling middleware for central response formatting.
+
+#### [NEW] `backend-express/src/middlewares/auth.middleware.ts`
+- Extract JWT-based stateless authentication logic.
+- Create an `authenticate` guard and a `requireRole` guard (to prevent the privilege escalation bug discovered in the audit).
+
+---
+### 3. API Routers & Controllers
+Porting business logic from Python into TypeScript controllers.
+
+#### [NEW] `backend-express/src/controllers/auth.controller.ts`
+- `POST /api/auth/register`: Prevents `admin` role injection. Hashes password via `bcrypt`.
+- `POST /api/auth/login`: Validates credentials, issues JWT via `jsonwebtoken`.
+- `GET /api/auth/me`: Retrieves current session user.
+
+#### [NEW] `backend-express/src/controllers/workOrder.controller.ts`
+- Implement pagination handling (`skip`, `take`).
+- Utilize Prisma transactions to handle creation and asynchronous notification generation safely.
+- Map endpoints equivalent to FastAPI routing structure.
+
+#### [NEW] `backend-express/src/controllers/inventory.controller.ts`
+- Logic port: When inventory hits `minQuantity`, emit low-stock notifications for Admins.
+
+*(Similar controllers will be generated)
+---
+### 4. Application Configuration
+
+#### [NEW] [backend-express/package.json]- Define build scripts (`npm run dev`, `npm run build`, `npm start`). 
+- Configure strict TypeScript linting and module resolution.
+
+## Verification Plan
+
+### Automated Tests
+1. **API Port Consistency Testing:**
+   We will port the existing [backend_test.py]   ```bash
+   cd backend-express
+   npm run test
+   ```
+   This will run identical business flows against the Express backend to ensure matching JSON response contracts before we integrate the React frontend.
+
+2. **Schema Validation:**
+   ```bash
+   npx prisma format
+   npx prisma validate
+   ```
+
+### Manual Verification
+1. User can spin up the server via `npm run dev`.
+2. Connect the existing React frontend (`REACT_APP_API_URL=http://localhost:3000/api`) to the new Express server and manually walk through:
+   - Creating a Work Order as a Requester
+   - Completing a Work Order as a Technician
+   - Verifying the Dashboard metrics load instantly via relational `count` aggregations.
