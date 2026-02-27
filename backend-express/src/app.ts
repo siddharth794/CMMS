@@ -13,11 +13,15 @@ app.use(express.json());
 import apiRoutes from './routes';
 import { errorHandler } from './middlewares/error.middleware';
 import { logger } from './utils/logger';
+import { apiLimiter } from './middlewares/rateLimiter.middleware';
 // Request Logging
 app.use((req, res, next) => {
     logger.info(`[${req.method}] ${req.url}`);
     next();
 });
+
+// Global Rate Limiting
+app.use('/api', apiLimiter);
 
 // Routes will be added here
 app.use('/api', apiRoutes);
