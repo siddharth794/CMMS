@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/AppError';
+import { logger } from '../utils/logger';
 
 export const errorHandler = (
     err: any,
@@ -12,7 +13,9 @@ export const errorHandler = (
     error.name = err.name || 'Error';
 
     if (process.env.NODE_ENV === 'development') {
-        console.error(err);
+        logger.error(err);
+    } else {
+        logger.error(`[Error] ${error.name}: ${error.message}`, { stack: err.stack });
     }
 
     if (err instanceof AppError) {
