@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { UserRepository } from '../repositories/user.repository';
+import { BadRequestError, UnauthorizedError } from '../utils/AppError';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_for_dev';
 
@@ -10,7 +11,7 @@ export class AuthService {
 
         const existingUser = await UserRepository.findByEmail(email);
         if (existingUser) {
-            throw new Error('Email already registered');
+            throw new BadRequestError('Email already registered');
         }
 
         const passwordHash = await bcrypt.hash(password, 10);
@@ -46,12 +47,12 @@ export class AuthService {
 
         const user = await UserRepository.findByEmail(email);
         if (!user) {
-            throw new Error('Invalid credentials');
+            throw new UnauthorizedError('Invalid credentials');
         }
 
         const isMatch = await bcrypt.compare(password, user.passwordHash);
         if (!isMatch) {
-            throw new Error('Invalid credentials');
+            throw new UnauthorizedError('Invalid credentials');
         }
 
         const token = jwt.sign(

@@ -2,6 +2,7 @@ import { prisma } from '../app';
 import { WorkOrderRepository } from '../repositories/workOrder.repository';
 import { UserRepository } from '../repositories/user.repository';
 import { NotificationRepository } from '../repositories/notification.repository';
+import { NotFoundError } from '../utils/AppError';
 
 export class WorkOrderService {
     static async createWorkOrder(data: any, creatorId: string) {
@@ -59,7 +60,7 @@ export class WorkOrderService {
 
     static async getWorkOrderById(id: string) {
         const workOrder = await WorkOrderRepository.findById(id);
-        if (!workOrder) throw new Error('Work order not found');
+        if (!workOrder) throw new NotFoundError('Work order not found');
         return workOrder;
     }
 
@@ -67,7 +68,7 @@ export class WorkOrderService {
         const { title, description, priority, status, assignedTo, location, dueDate, notes } = data;
 
         const existingWo = await WorkOrderRepository.findById(id);
-        if (!existingWo) throw new Error('Work order not found');
+        if (!existingWo) throw new NotFoundError('Work order not found');
 
         const [updatedWo] = await prisma.$transaction(async (tx: any) => {
             const wo = await WorkOrderRepository.update(id, {

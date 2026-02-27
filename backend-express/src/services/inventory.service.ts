@@ -2,6 +2,7 @@ import { prisma } from '../app';
 import { InventoryRepository } from '../repositories/inventory.repository';
 import { UserRepository } from '../repositories/user.repository';
 import { NotificationRepository } from '../repositories/notification.repository';
+import { NotFoundError } from '../utils/AppError';
 
 export class InventoryService {
     static async createInventoryItem(data: any) {
@@ -34,7 +35,7 @@ export class InventoryService {
 
         const existingItem = await InventoryRepository.findById(id);
         if (!existingItem) {
-            throw new Error('Inventory item not found');
+            throw new NotFoundError('Inventory item not found');
         }
 
         const [updatedItem] = await prisma.$transaction(async (tx: any) => {
