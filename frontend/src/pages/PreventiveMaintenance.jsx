@@ -121,7 +121,7 @@ const PreventiveMaintenance = () => {
 
   const schedulesForDate = schedules.filter(pm => {
     try {
-      const dueDate = parseISO(pm.next_due_date);
+      const dueDate = pm.next_due_date ? parseISO(pm.next_due_date) : new Date();
       return isSameDay(dueDate, selectedDate);
     } catch {
       return false;
@@ -130,7 +130,7 @@ const PreventiveMaintenance = () => {
 
   const dueDates = schedules.map(pm => {
     try {
-      return parseISO(pm.next_due_date);
+      return pm.next_due_date ? parseISO(pm.next_due_date) : new Date();
     } catch {
       return null;
     }
@@ -149,7 +149,7 @@ const PreventiveMaintenance = () => {
           <p className="text-sm text-gray-500 mt-1">Schedule and track recurring maintenance tasks</p>
         </div>
         {canEdit && (
-          <Button 
+          <Button
             className="bg-[#001F3F] hover:bg-[#003366] text-white font-semibold uppercase tracking-wide"
             onClick={() => setShowCreateModal(true)}
             data-testid="create-pm-btn"
@@ -178,7 +178,7 @@ const PreventiveMaintenance = () => {
                 hasPM: dueDates
               }}
               modifiersStyles={{
-                hasPM: { 
+                hasPM: {
                   backgroundColor: '#D32F2F20',
                   fontWeight: 'bold',
                   color: '#D32F2F'
@@ -227,9 +227,9 @@ const PreventiveMaintenance = () => {
                       </div>
                       {canEdit && (
                         <div className="flex gap-1">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             className="text-green-600 hover:text-green-700"
                             onClick={() => handleComplete(pm.id)}
                             data-testid={`complete-pm-${pm.id}`}
@@ -282,8 +282,8 @@ const PreventiveMaintenance = () => {
                             Next: {pm.next_due_date}
                           </span>
                           {pm.last_completed && (
-                            <span className="text-xs text-green-600">
-                              Last: {format(parseISO(pm.last_completed), 'MMM d')}
+                            <span className="text-gray-500">
+                              Last: {pm.last_completed ? format(parseISO(pm.last_completed), 'MMM d') : '-'}
                             </span>
                           )}
                         </div>
@@ -292,8 +292,8 @@ const PreventiveMaintenance = () => {
                     <div className="flex items-center gap-2">
                       {canEdit && (
                         <>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => handleComplete(pm.id)}
                             data-testid={`complete-pm-list-${pm.id}`}
@@ -302,8 +302,8 @@ const PreventiveMaintenance = () => {
                             Complete
                           </Button>
                           {user?.role === 'admin' && (
-                            <Button 
-                              variant="ghost" 
+                            <Button
+                              variant="ghost"
                               size="icon"
                               className="text-red-600 hover:text-red-700"
                               onClick={() => handleDelete(pm.id)}
@@ -422,8 +422,8 @@ const PreventiveMaintenance = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreateModal(false)}>Cancel</Button>
-            <Button 
-              className="bg-[#001F3F] hover:bg-[#003366]" 
+            <Button
+              className="bg-[#001F3F] hover:bg-[#003366]"
               onClick={handleCreate}
               disabled={!formData.title || !formData.asset_id || !formData.next_due_date}
               data-testid="submit-pm-btn"

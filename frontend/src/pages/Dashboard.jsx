@@ -5,11 +5,11 @@ import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  ClipboardList, 
-  AlertTriangle, 
-  Box, 
-  Package, 
+import {
+  ClipboardList,
+  AlertTriangle,
+  Box,
+  Package,
   Calendar,
   Plus,
   ArrowRight,
@@ -212,7 +212,7 @@ const Dashboard = () => {
                       </div>
                       <div className="text-right text-xs text-gray-500">
                         <p>{wo.created_by_name}</p>
-                        <p className="mt-1">{format(parseISO(wo.created_at), 'MMM d, h:mm a')}</p>
+                        <p className="mt-1">{wo.created_at ? format(parseISO(wo.created_at), 'MMM d, h:mm a') : '-'}</p>
                       </div>
                     </div>
                   </div>

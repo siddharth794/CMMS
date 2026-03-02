@@ -51,7 +51,7 @@ const WorkOrders = () => {
       if (statusFilter !== 'all') params.append('status', statusFilter);
       if (priorityFilter !== 'all') params.append('priority', priorityFilter);
       if (params.toString()) url += `?${params.toString()}`;
-      
+
       const response = await axios.get(url, getAuthHeader());
       setWorkOrders(response.data);
     } catch (error) {
@@ -164,7 +164,7 @@ const WorkOrders = () => {
           </h1>
           <p className="text-sm text-gray-500 mt-1">Manage maintenance requests and tasks</p>
         </div>
-        <Button 
+        <Button
           className="bg-[#001F3F] hover:bg-[#003366] text-white font-semibold uppercase tracking-wide"
           onClick={() => setShowCreateModal(true)}
           data-testid="create-work-order-btn"
@@ -258,7 +258,7 @@ const WorkOrders = () => {
                     <Badge className={getStatusColor(wo.status)}>{wo.status.replace('_', ' ')}</Badge>
                   </TableCell>
                   <TableCell className="text-sm text-gray-500">
-                    {format(parseISO(wo.created_at), 'MMM d, yyyy')}
+                    {wo.created_at ? format(parseISO(wo.created_at), 'MMM d, yyyy') : '-'}
                   </TableCell>
                   <TableCell className="text-sm">{wo.assigned_to_name || '-'}</TableCell>
                   <TableCell className="text-right">
@@ -363,8 +363,8 @@ const WorkOrders = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreateModal(false)}>Cancel</Button>
-            <Button 
-              className="bg-[#001F3F] hover:bg-[#003366]" 
+            <Button
+              className="bg-[#001F3F] hover:bg-[#003366]"
               onClick={handleCreate}
               disabled={!formData.title || !formData.description || !formData.location}
               data-testid="submit-work-order-btn"
@@ -390,7 +390,7 @@ const WorkOrders = () => {
                 <Badge className={getPriorityColor(selectedWO.priority)}>{selectedWO.priority}</Badge>
                 <Badge className={getStatusColor(selectedWO.status)}>{selectedWO.status.replace('_', ' ')}</Badge>
               </div>
-              
+
               <div>
                 <h3 className="font-semibold text-lg text-[#001F3F]">{selectedWO.title}</h3>
                 <p className="text-gray-600 mt-2">{selectedWO.description}</p>
@@ -407,7 +407,7 @@ const WorkOrders = () => {
                 </div>
                 <div>
                   <span className="text-gray-500">Created:</span>
-                  <p className="font-medium">{format(parseISO(selectedWO.created_at), 'MMM d, yyyy h:mm a')}</p>
+                  <p className="font-medium">{selectedWO.created_at ? format(parseISO(selectedWO.created_at), 'MMM d, yyyy h:mm a') : '-'}</p>
                 </div>
                 {selectedWO.due_date && (
                   <div>
@@ -429,8 +429,8 @@ const WorkOrders = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Status</Label>
-                      <Select 
-                        value={selectedWO.status} 
+                      <Select
+                        value={selectedWO.status}
                         onValueChange={(v) => handleUpdate(selectedWO.id, { status: v })}
                       >
                         <SelectTrigger data-testid="update-status-select">
@@ -447,8 +447,8 @@ const WorkOrders = () => {
                     </div>
                     <div>
                       <Label>Assign To</Label>
-                      <Select 
-                        value={selectedWO.assigned_to || 'unassigned'} 
+                      <Select
+                        value={selectedWO.assigned_to || 'unassigned'}
                         onValueChange={(v) => handleUpdate(selectedWO.id, { assigned_to: v === 'unassigned' ? null : v })}
                       >
                         <SelectTrigger data-testid="assign-to-select">

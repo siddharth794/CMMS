@@ -52,7 +52,7 @@ const Assets = () => {
       if (statusFilter !== 'all') params.append('status', statusFilter);
       if (categoryFilter !== 'all') params.append('category', categoryFilter);
       if (params.toString()) url += `?${params.toString()}`;
-      
+
       const response = await axios.get(url, getAuthHeader());
       setAssets(response.data);
     } catch (error) {
@@ -139,7 +139,7 @@ const Assets = () => {
           <p className="text-sm text-gray-500 mt-1">Manage facility equipment and assets</p>
         </div>
         {canEdit && (
-          <Button 
+          <Button
             className="bg-[#001F3F] hover:bg-[#003366] text-white font-semibold uppercase tracking-wide"
             onClick={() => setShowCreateModal(true)}
             data-testid="create-asset-btn"
@@ -202,8 +202,8 @@ const Assets = () => {
           </div>
         ) : (
           filteredAssets.map((asset) => (
-            <Card 
-              key={asset.id} 
+            <Card
+              key={asset.id}
               className="bg-white border border-gray-200 rounded-sm shadow-sm card-hover cursor-pointer"
               onClick={() => viewDetails(asset.id)}
               data-testid={`asset-card-${asset.id}`}
@@ -345,8 +345,8 @@ const Assets = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreateModal(false)}>Cancel</Button>
-            <Button 
-              className="bg-[#001F3F] hover:bg-[#003366]" 
+            <Button
+              className="bg-[#001F3F] hover:bg-[#003366]"
               onClick={handleCreate}
               disabled={!formData.name || !formData.category || !formData.location}
               data-testid="submit-asset-btn"
@@ -424,8 +424,8 @@ const Assets = () => {
               {canEdit && (
                 <div className="border-t pt-4">
                   <Label>Update Status</Label>
-                  <Select 
-                    value={selectedAsset.status} 
+                  <Select
+                    value={selectedAsset.status}
                     onValueChange={(v) => handleUpdate(selectedAsset.id, { status: v })}
                   >
                     <SelectTrigger className="w-full md:w-60" data-testid="update-asset-status">
@@ -455,7 +455,7 @@ const Assets = () => {
                           <span className="font-medium">{wo.title}</span>
                           <Badge className={getStatusColor(wo.status)}>{wo.status}</Badge>
                         </div>
-                        <p className="text-gray-500 text-xs mt-1">{format(parseISO(wo.created_at), 'MMM d, yyyy')}</p>
+                        <p className="text-gray-500 text-xs mt-1">{wo.created_at ? format(parseISO(wo.created_at), 'MMM d, yyyy') : '-'}</p>
                       </div>
                     ))}
                   </div>
@@ -464,8 +464,8 @@ const Assets = () => {
 
               {user?.role === 'admin' && (
                 <div className="border-t pt-4">
-                  <Button 
-                    variant="destructive" 
+                  <Button
+                    variant="destructive"
                     onClick={() => handleDelete(selectedAsset.id)}
                     data-testid="delete-asset-btn"
                   >
