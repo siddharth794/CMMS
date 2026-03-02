@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, BackgroundTasks
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -23,7 +23,9 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # JWT Settings
-JWT_SECRET = os.environ.get('JWT_SECRET', 'spartans-cmms-secret-key-2024')
+JWT_SECRET = os.environ.get('JWT_SECRET')
+if not JWT_SECRET:
+    raise ValueError("JWT_SECRET environment variable is required")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
 
@@ -300,7 +302,7 @@ async def register(user_data: UserCreate):
     user = User(
         email=user_data.email,
         name=user_data.name,
-        role=user_data.role
+        role=UserRole.REQUESTER  # Force default role for security
     )
     
     doc = user.model_dump()
@@ -351,21 +353,21 @@ async def get_me(current_user: dict = Depends(get_current_user)):
 
 # User Management Routes (Admin only)
 @api_router.get("/users", response_model=List[UserResponse])
-async def get_users(current_user: dict = Depends(get_current_user)):
+async def get_users(skip: int = 0, limit: int = 100, current_user: dict = Depends(get_current_user)):
     if current_user['role'] != 'admin':
         raise HTTPException(status_code=403, detail="Admin access required")
     
-    users = await db.users.find({}, {"_id": 0, "password_hash": 0}).to_list(1000)
+    users = await db.users.find({}, {"_id": 0, "password_hash": 0}).skip(skip).limit(limit).to_list(limit)
     return [UserResponse(**u) for u in users]
 
 @api_router.get("/users/technicians", response_model=List[UserResponse])
-async def get_technicians(current_user: dict = Depends(get_current_user)):
-    users = await db.users.find({"role": {"$in": ["admin", "technician"]}}, {"_id": 0, "password_hash": 0}).to_list(1000)
+async def get_technicians(skip: int = 0, limit: int = 100, current_user: dict = Depends(get_current_user)):
+    users = await db.users.find({"role": {"$in": ["admin", "technician"]}}, {"_id": 0, "password_hash": 0}).skip(skip).limit(limit).to_list(limit)
     return [UserResponse(**u) for u in users]
 
 # Work Order Routes
 @api_router.post("/work-orders", response_model=dict)
-async def create_work_order(wo_data: WorkOrderCreate, current_user: dict = Depends(get_current_user)):
+async def create_work_order(wo_data: WorkOrderCreate, background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)):
     work_order = WorkOrder(
         **wo_data.model_dump(),
         created_by=current_user['id']
@@ -383,7 +385,8 @@ async def create_work_order(wo_data: WorkOrderCreate, current_user: dict = Depen
     admins = await db.users.find({"role": {"$in": ["admin", "technician"]}}, {"_id": 0}).to_list(100)
     for admin in admins:
         if admin['id'] != current_user['id']:
-            await create_notification(
+            background_tasks.add_task(
+                create_notification,
                 admin['id'],
                 NotificationType.WORK_ORDER,
                 "New Work Order",
@@ -400,6 +403,8 @@ async def get_work_orders(
     status: Optional[str] = None,
     priority: Optional[str] = None,
     assigned_to: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
     current_user: dict = Depends(get_current_user)
 ):
     query = {}
@@ -415,7 +420,7 @@ async def get_work_orders(
     if priority:
         query['priority'] = priority
     
-    work_orders = await db.work_orders.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    work_orders = await db.work_orders.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     
     # Enrich with user names
     for wo in work_orders:
@@ -448,7 +453,7 @@ async def get_work_order(wo_id: str, current_user: dict = Depends(get_current_us
     return wo
 
 @api_router.put("/work-orders/{wo_id}", response_model=dict)
-async def update_work_order(wo_id: str, update_data: WorkOrderUpdate, current_user: dict = Depends(get_current_user)):
+async def update_work_order(wo_id: str, update_data: WorkOrderUpdate, background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)):
     if current_user['role'] == 'requester':
         raise HTTPException(status_code=403, detail="Not authorized to update work orders")
     
@@ -466,7 +471,8 @@ async def update_work_order(wo_id: str, update_data: WorkOrderUpdate, current_us
     
     # Notify relevant users
     if update_data.assigned_to:
-        await create_notification(
+        background_tasks.add_task(
+            create_notification,
             update_data.assigned_to,
             NotificationType.WORK_ORDER,
             "Work Order Assigned",
@@ -476,7 +482,8 @@ async def update_work_order(wo_id: str, update_data: WorkOrderUpdate, current_us
     
     if update_data.status:
         # Notify creator
-        await create_notification(
+        background_tasks.add_task(
+            create_notification,
             wo['created_by'],
             NotificationType.WORK_ORDER,
             "Work Order Updated",
@@ -517,6 +524,8 @@ async def create_asset(asset_data: AssetCreate, current_user: dict = Depends(get
 async def get_assets(
     status: Optional[str] = None,
     category: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
     current_user: dict = Depends(get_current_user)
 ):
     query = {}
@@ -525,7 +534,7 @@ async def get_assets(
     if category:
         query['category'] = category
     
-    assets = await db.assets.find(query, {"_id": 0}).to_list(1000)
+    assets = await db.assets.find(query, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
     return assets
 
 @api_router.get("/assets/{asset_id}", response_model=dict)
@@ -587,8 +596,8 @@ async def create_pm_schedule(pm_data: PMScheduleCreate, current_user: dict = Dep
     return doc
 
 @api_router.get("/pm-schedules", response_model=List[dict])
-async def get_pm_schedules(current_user: dict = Depends(get_current_user)):
-    schedules = await db.pm_schedules.find({}, {"_id": 0}).to_list(1000)
+async def get_pm_schedules(skip: int = 0, limit: int = 100, current_user: dict = Depends(get_current_user)):
+    schedules = await db.pm_schedules.find({}, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
     
     # Enrich with asset names
     for pm in schedules:
@@ -680,21 +689,22 @@ async def create_inventory_item(item_data: InventoryItemCreate, current_user: di
 async def get_inventory(
     category: Optional[str] = None,
     low_stock: Optional[bool] = None,
+    skip: int = 0,
+    limit: int = 100,
     current_user: dict = Depends(get_current_user)
 ):
     query = {}
     if category:
         query['category'] = category
-    
-    items = await db.inventory.find(query, {"_id": 0}).to_list(1000)
-    
     if low_stock:
-        items = [i for i in items if i['quantity'] <= i['min_quantity']]
+        query['$expr'] = {'$lte': ['$quantity', '$min_quantity']}
+    
+    items = await db.inventory.find(query, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
     
     return items
 
 @api_router.put("/inventory/{item_id}", response_model=dict)
-async def update_inventory_item(item_id: str, update_data: InventoryItemUpdate, current_user: dict = Depends(get_current_user)):
+async def update_inventory_item(item_id: str, update_data: InventoryItemUpdate, background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)):
     if current_user['role'] == 'requester':
         raise HTTPException(status_code=403, detail="Not authorized to manage inventory")
     
@@ -714,7 +724,8 @@ async def update_inventory_item(item_id: str, update_data: InventoryItemUpdate, 
             # Notify admins
             admins = await db.users.find({"role": "admin"}, {"_id": 0}).to_list(100)
             for admin in admins:
-                await create_notification(
+                background_tasks.add_task(
+                    create_notification,
                     admin['id'],
                     NotificationType.INVENTORY,
                     "Low Stock Alert",
@@ -737,11 +748,11 @@ async def delete_inventory_item(item_id: str, current_user: dict = Depends(get_c
 
 # Notification Routes
 @api_router.get("/notifications", response_model=List[dict])
-async def get_notifications(current_user: dict = Depends(get_current_user)):
+async def get_notifications(skip: int = 0, limit: int = 100, current_user: dict = Depends(get_current_user)):
     notifications = await db.notifications.find(
         {"user_id": current_user['id']},
         {"_id": 0}
-    ).sort("created_at", -1).to_list(100)
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     return notifications
 
 @api_router.put("/notifications/{notif_id}/read")
@@ -777,8 +788,7 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
     
     # Inventory stats
     total_inventory = await db.inventory.count_documents({})
-    low_stock_items = await db.inventory.find({}, {"_id": 0}).to_list(1000)
-    low_stock_count = len([i for i in low_stock_items if i['quantity'] <= i['min_quantity']])
+    low_stock_count = await db.inventory.count_documents({"$expr": {"$lte": ["$quantity", "$min_quantity"]}})
     
     # PM stats
     total_pm = await db.pm_schedules.count_documents({"is_active": True})
@@ -834,24 +844,28 @@ async def get_work_order_report(
         else:
             query['created_at'] = {"$lte": end_date}
     
-    work_orders = await db.work_orders.find(query, {"_id": 0}).to_list(10000)
+    # Calculate metrics using aggregation
+    pipeline = [
+        {"$match": query},
+        {"$facet": {
+            "total_count": [{"$count": "count"}],
+            "by_status": [{"$group": {"_id": "$status", "count": {"$sum": 1}}}],
+            "by_priority": [{"$group": {"_id": "$priority", "count": {"$sum": 1}}}]
+        }}
+    ]
     
-    # Calculate metrics
-    total = len(work_orders)
-    completed = len([w for w in work_orders if w['status'] == 'completed'])
+    results = await db.work_orders.aggregate(pipeline).to_list(1)
+    if not results or not results[0].get('total_count'):
+        return {"total": 0, "completed": 0, "completion_rate": 0.0, "by_status": {}, "by_priority": {}}
+        
+    result = results[0]
+    total = result['total_count'][0]['count'] if result['total_count'] else 0
+    
+    by_status = {item['_id']: item['count'] for item in result['by_status']}
+    by_priority = {item['_id']: item['count'] for item in result['by_priority']}
+    
+    completed = by_status.get('completed', 0)
     completion_rate = (completed / total * 100) if total > 0 else 0
-    
-    # By status
-    by_status = {}
-    for wo in work_orders:
-        status = wo['status']
-        by_status[status] = by_status.get(status, 0) + 1
-    
-    # By priority
-    by_priority = {}
-    for wo in work_orders:
-        priority = wo['priority']
-        by_priority[priority] = by_priority.get(priority, 0) + 1
     
     return {
         "total": total,

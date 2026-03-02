@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  technician
+  requester
+}
+
+enum WorkOrderStatus {
+  open
+  in_progress
+  on_hold
+  completed
+  cancelled
+}
+
+enum WorkOrderPriority {
+  low
+  medium
+  high
+  critical
+}
+
+enum AssetStatus {
+  operational
+  maintenance
+  out_of_service
+  retired
+}
+
+enum MaintenanceFrequency {
+  daily
+  weekly
+  biweekly
+  monthly
+  quarterly
+  yearly
+}
+
+enum NotificationType {
+  work_order
+  asset
+  maintenance
+  inventory
+  system
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         UserRole @default(requester)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  createdWorkOrders  WorkOrder[]    @relation("CreatedWorkOrders")
+  assignedWorkOrders WorkOrder[]    @relation("AssignedWorkOrders")
+  assignedPMs        PMSchedule[]   @relation("AssignedPMs")
+  notifications      Notification[]
+}
+
+model WorkOrder {
+  id          String            @id @default(uuid())
+  title       String
+  description String
+  priority    WorkOrderPriority @default(medium)
+  status      WorkOrderStatus   @default(open)
+  location    String
+  dueDate     DateTime?
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  completedAt DateTime?
+
+  creatorId String
+  creator   User   @relation("CreatedWorkOrders", fields: [creatorId], references: [id])
+
+  assigneeId String?
+  assignee   User?   @relation("AssignedWorkOrders", fields: [assigneeId], references: [id])
+
+  assetId String?
+  asset   Asset?  @relation(fields: [assetId], references: [id])
+}
+
+model Asset {
+  id             String      @id @default(uuid())
+  name           String
+  description    String
+  category       String
+  location       String
+  status         AssetStatus @default(operational)
+  serialNumber   String?
+  manufacturer   String?
+  model          String?
+  purchaseDate   DateTime?
+  warrantyExpiry DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  workOrders  WorkOrder[]
+  pmSchedules PMSchedule[]
+}
+
+model PMSchedule {
+  id            String               @id @default(uuid())
+  title         String
+  description   String
+  frequency     MaintenanceFrequency
+  nextDueDate   DateTime
+  checklist     String[]
+  isActive      Boolean              @default(true)
+  lastCompleted DateTime?
+  createdAt     DateTime             @default(now())
+
+  assetId String
+  asset   Asset  @relation(fields: [assetId], references: [id])
+
+  assigneeId String?
+  assignee   User?   @relation("AssignedPMs", fields: [assigneeId], references: [id])
+}
+
+model InventoryItem {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  category    String
+  sku         String?
+  quantity    Int      @default(0)
+  minQuantity Int      @default(0)
+  unit        String   @default("pcs")
+  location    String
+  unitCost    Float    @default(0.0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  type        NotificationType
+  title       String
+  message     String
+  isRead      Boolean          @default(false)
+  referenceId String?
+  createdAt   DateTime         @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
