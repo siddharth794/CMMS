@@ -1,70 +1,72 @@
-# Getting Started with Create React App
+# CMMS Frontend Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This provides the frontend user interface for the CMMS platform. Built using modern web technologies, it features a responsive, accessible, and fast interface.
 
-## Available Scripts
+## 🏗 System Architecture
 
-In the project directory, you can run:
+The frontend follows a component-centric architecture built around React and Tailwind CSS, leveraging specialized libraries for state, routing, and form handling:
 
-### `npm start`
+### Tech Stack
+- **Framework:** React.js (Bootstrapped with CRA + Craco for Tailwind integration)
+- **Styling:** Tailwind CSS & `tailwindcss-animate`
+- **Component Library:** Radix UI primitives (shadcn/ui style)
+- **Routing:** React Router v7
+- **Form Handling:** React Hook Form + Zod for schema validation
+- **Data Fetching:** Axios
+- **Icons:** Lucide React
+- **Notifications:** Sonner for Toast messages
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Directory Structure
+```text
+frontend/
+├── public/               # Static assets
+└── src/
+    ├── components/       # Reusable UI components (often Radix UI based)
+    ├── context/          # React Context providers (e.g., Auth, Theme)
+    ├── hooks/            # Custom React hooks
+    ├── lib/              # Utility functions and library configuration (e.g. axios)
+    ├── pages/            # Page-level components matching routes
+    ├── App.js            # Main application root and routing setup
+    └── index.js          # React entry point
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🚀 Setup Instructions
 
-### `npm test`
+### 1. Prerequisites
+Ensure you have [Node.js](https://nodejs.org/) installed (v18 or higher recommended).
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 2. Install Dependencies
+Navigate into the `frontend` directory and install the necessary dependencies using `npm` or `yarn`:
 
-### `npm run build`
+```bash
+cd frontend
+npm install
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 3. Environment Variables
+Create a `.env` file in the root of the `frontend` directory if necessary. Typically you will need the API URL:
+```env
+REACT_APP_API_URL=http://localhost:3000/api
+```
+*(Check your backend setup for the exact API port and path)*
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 4. Running the Development Server
+To start the React development server:
+```bash
+npm start
+```
+The application will be available at [http://localhost:3000](http://localhost:3000). The dev server features hot reloading, so changes in the source code will immediately reflect in the browser.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 5. Building for Production
+To create an optimized production build:
+```bash
+npm run build
+```
+This processes and minifies the code into the `build/` directory, ready to be served by any static file server like Nginx or deployed to Vercel/Netlify.
 
-### `npm run eject`
+## ✨ Development Guidelines
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **Components:** Place shared components in `src/components`. Utilize Radix UI unstyled primitives for accessible UI building.
+- **Styling:** Use Tailwind CSS utility classes. The design system is configured in `tailwind.config.js`.
+- **Forms:** Use `react-hook-form` paired with `zod` for strongly typed, performant form validation.
+- **Icons:** Search for what you need on [Lucide](https://lucide.dev/) and import directly via `lucide-react`.
