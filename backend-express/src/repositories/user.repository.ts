@@ -35,4 +35,25 @@ export class UserRepository {
             select: { id: true }
         });
     }
+
+    static async findAll(skip: number, take: number, tx?: Prisma.TransactionClient) {
+        const db = tx || prisma;
+        return db.user.findMany({
+            skip,
+            take,
+            select: { id: true, email: true, name: true, role: true, isActive: true },
+            orderBy: { createdAt: 'desc' }
+        });
+    }
+
+    static async findTechnicians(skip: number, take: number, tx?: Prisma.TransactionClient) {
+        const db = tx || prisma;
+        return db.user.findMany({
+            where: { role: { in: ['admin', 'technician'] } },
+            skip,
+            take,
+            select: { id: true, email: true, name: true, role: true, isActive: true },
+            orderBy: { createdAt: 'desc' }
+        });
+    }
 }
