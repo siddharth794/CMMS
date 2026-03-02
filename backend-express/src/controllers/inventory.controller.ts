@@ -27,3 +27,8 @@ export const updateInventoryItem = async (req: AuthRequest, res: Response) => {
     const updatedItem = await InventoryService.updateInventoryItem(String(id), req.body);
     res.json(updatedItem);
 };
+
+export const deleteInventoryItem = async (req: AuthRequest, res: Response) => {
+    const result = await InventoryService.deleteInventoryItem(String(req.params.id), req.user.role);
+    res.json(result);
+};

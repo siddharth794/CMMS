@@ -29,4 +29,11 @@ export class InventoryRepository {
             data
         });
     }
+
+    static async delete(id: string, tx?: Prisma.TransactionClient) {
+        const db = tx || prisma;
+        return db.inventoryItem.delete({
+            where: { id }
+        });
+    }
 }

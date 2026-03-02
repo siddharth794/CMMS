@@ -113,4 +113,16 @@ export class WorkOrderService {
 
         return updatedWo;
     }
+
+    static async deleteWorkOrder(id: string, userRole: string) {
+        if (userRole !== 'admin') {
+            throw new NotFoundError('Admin access required');
+        }
+
+        const existingWo = await WorkOrderRepository.findById(id);
+        if (!existingWo) throw new NotFoundError('Work order not found');
+
+        await WorkOrderRepository.delete(id);
+        return { message: 'Work order deleted' };
+    }
 }

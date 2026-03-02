@@ -26,3 +26,8 @@ export const updateWorkOrder = async (req: AuthRequest, res: Response) => {
     const updatedWo = await WorkOrderService.updateWorkOrder(String(req.params.id), req.body);
     res.json(updatedWo);
 };
+
+export const deleteWorkOrder = async (req: AuthRequest, res: Response) => {
+    const result = await WorkOrderService.deleteWorkOrder(String(req.params.id), req.user.role);
+    res.json(result);
+};

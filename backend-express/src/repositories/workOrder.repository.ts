@@ -41,4 +41,11 @@ export class WorkOrderRepository {
             data
         });
     }
+
+    static async delete(id: string, tx?: Prisma.TransactionClient) {
+        const db = tx || prisma;
+        return db.workOrder.delete({
+            where: { id }
+        });
+    }
 }

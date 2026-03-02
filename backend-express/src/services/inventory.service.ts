@@ -72,4 +72,16 @@ export class InventoryService {
 
         return updatedItem;
     }
+
+    static async deleteInventoryItem(id: string, userRole: string) {
+        if (userRole !== 'admin') {
+            throw new NotFoundError('Admin access required');
+        }
+
+        const existingItem = await InventoryRepository.findById(id);
+        if (!existingItem) throw new NotFoundError('Inventory item not found');
+
+        await InventoryRepository.delete(id);
+        return { message: 'Inventory item deleted' };
+    }
 }
