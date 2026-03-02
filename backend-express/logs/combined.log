@@ -1,0 +1,55 @@
+2026-03-02 15:19:51 info: Server is running on port 3000
+2026-03-02 15:21:24 info: Server is running on port 3000
+2026-03-02 15:25:21 info: Server is running on port 3000
+2026-03-02 15:51:59 info: Server is running on port 3000
+2026-03-02 17:29:27 info: Server is running on port 3000
+2026-03-02 17:33:21 info: [POST] /api/auth/register
+2026-03-02 17:33:21 info: [GET] /api/notifications
+2026-03-02 17:33:21 info: [GET] /api/auth/me
+2026-03-02 17:33:21 info: [GET] /api/notifications
+2026-03-02 17:33:21 info: [GET] /api/dashboard/stats
+2026-03-02 17:33:21 info: [GET] /api/dashboard/stats
+2026-03-02 17:33:40 info: [POST] /api/auth/register
+2026-03-02 17:33:40 info: [GET] /api/auth/me
+2026-03-02 17:33:40 info: [GET] /api/dashboard/stats
+2026-03-02 17:33:40 info: [GET] /api/notifications
+2026-03-02 17:33:40 info: [GET] /api/dashboard/stats
+2026-03-02 17:33:40 info: [GET] /api/notifications
+2026-03-02 17:33:44 info: [GET] /api/assets
+2026-03-02 17:33:44 info: [GET] /api/users/technicians
+2026-03-02 17:33:44 info: [GET] /api/work-orders
+2026-03-02 17:33:44 info: [GET] /api/assets
+2026-03-02 17:33:44 info: [GET] /api/users/technicians
+2026-03-02 17:33:44 info: [GET] /api/work-orders
+2026-03-02 17:33:44 info: [GET] /api/dashboard/stats
+2026-03-02 17:33:44 info: [GET] /api/dashboard/stats
+2026-03-02 17:33:45 info: [GET] /api/work-orders
+2026-03-02 17:33:45 info: [GET] /api/assets
+2026-03-02 17:33:45 info: [GET] /api/users/technicians
+2026-03-02 17:33:45 info: [GET] /api/assets
+2026-03-02 17:33:45 info: [GET] /api/users/technicians
+2026-03-02 17:33:45 info: [GET] /api/work-orders
+2026-03-02 17:34:03 info: [POST] /api/work-orders
+2026-03-02 17:34:03 info: [GET] /api/work-orders
+2026-03-02 17:34:11 info: [GET] /api/auth/me
+2026-03-02 17:34:11 info: [GET] /api/auth/me
+2026-03-02 17:34:11 info: [GET] /api/assets
+2026-03-02 17:34:11 info: [GET] /api/notifications
+2026-03-02 17:34:11 info: [GET] /api/users/technicians
+2026-03-02 17:34:11 info: [GET] /api/work-orders
+2026-03-02 17:34:11 info: [GET] /api/users/technicians
+2026-03-02 17:34:11 info: [GET] /api/assets
+2026-03-02 17:34:11 info: [GET] /api/notifications
+2026-03-02 17:34:11 info: [GET] /api/work-orders
+2026-03-02 17:34:18 info: [GET] /api/auth/me
+2026-03-02 17:34:18 info: [GET] /api/auth/me
+2026-03-02 17:34:18 info: [GET] /api/dashboard/stats
+2026-03-02 17:34:18 info: [GET] /api/notifications
+2026-03-02 17:34:18 info: [GET] /api/dashboard/stats
+2026-03-02 17:34:18 info: [GET] /api/notifications
+2026-03-02 17:34:20 info: [GET] /api/work-orders
+2026-03-02 17:34:20 info: [GET] /api/assets
+2026-03-02 17:34:20 info: [GET] /api/users/technicians
+2026-03-02 17:34:20 info: [GET] /api/assets
+2026-03-02 17:34:20 info: [GET] /api/users/technicians
+2026-03-02 17:34:20 info: [GET] /api/work-orders
